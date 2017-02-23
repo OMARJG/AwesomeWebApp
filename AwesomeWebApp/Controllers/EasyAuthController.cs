@@ -7,7 +7,10 @@ using System.Web.Mvc;
 using System.Threading.Tasks;
 using System.Security.Claims;
 using System.Net.Http;
-using System.Net.HttpHeaders;
+using System.Configuration;
+using System.Net.Http.Headers;
+using System.Web.Helpers;
+using AwesomeWebApp.Models;
 
 namespace AwesomeWebApp.Controllers
 {
@@ -16,16 +19,26 @@ namespace AwesomeWebApp.Controllers
         // GET: EasyAuth
         public ActionResult Index()
         {
-            return View();
+           
+
+            List<string> objectIdsToCompare = new List<string>();
+            objectIdsToCompare = GetMemberGroups(ClaimsPrincipal.Current.Identity as ClaimsIdentity).Result;
+
+
+            Group g = new Group();
+            g.Names = objectIdsToCompare;
+            return View(g);
         }
-    }
-    
-    async Task<List<string>> GetGroupsFromGraphAPI(ClaimsIdentity claimsIdentity)
+
+
+
+        async Task<List<string>> GetGroupsFromGraphAPI(ClaimsIdentity claimsIdentity)
         {
             List<string> groupObjectIds = new List<string>();
 
-            string groupsClaimSourceIndex = (Json.Decode(claimsIdentity.FindFirst("_claim_names").Value)).groups;
-            var groupClaimsSource = (Json.Decode(claimsIdentity.FindFirst("_claim_sources").Value))[groupsClaimSourceIndex];
+
+            string groupsClaimSourceIndex = (System.Web.Helpers.Json.Decode(claimsIdentity.FindFirst("_claim_names").Value)).groups;
+            var groupClaimsSource = (System.Web.Helpers.Json.Decode(claimsIdentity.FindFirst("_claim_sources").Value))[groupsClaimSourceIndex];
             string requestUrl = groupClaimsSource.endpoint + "?api-version=" + ConfigurationManager.AppSettings["ida:GraphAPIVersion"];
 
             string accesstoken = Request.Headers["X-MS-TOKEN-AAD-ID-TOKEN"].ToString();
@@ -42,29 +55,29 @@ namespace AwesomeWebApp.Controllers
             if (response.IsSuccessStatusCode)
             {
                 string responseContent = await response.Content.ReadAsStringAsync();
-                var groupsResult = (Json.Decode(responseContent)).value;
+                var groupsResult = (System.Web.Helpers.Json.Decode(responseContent)).value;
 
                 foreach (string groupObjectID in groupsResult)
                     groupObjectIds.Add(groupObjectID);
             }
             else
             {
-                throw new WebException();
+                throw new Exception("Response not success");
             }
 
             return groupObjectIds;
         }
 
 
- async Task<List<string>> GetMemberGroups(ClaimsIdentity claimsIdentity)
+        async Task<List<string>> GetMemberGroups(ClaimsIdentity claimsIdentity)
         {
             //check for groups overage claim. If present query graph API for group membership
             if (claimsIdentity.FindFirst("_claim_names") != null
-                && (Json.Decode(claimsIdentity.FindFirst("_claim_names").Value)).groups != null)
+                && (System.Web.Helpers.Json.Decode(claimsIdentity.FindFirst("_claim_names").Value)).groups != null)
                 return await GetGroupsFromGraphAPI(claimsIdentity);
 
             return claimsIdentity.FindAll("groups").Select(c => c.Value).ToList();
-        } 
+        }
 
-
+    }
 }
