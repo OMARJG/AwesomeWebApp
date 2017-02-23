@@ -63,7 +63,7 @@ namespace AwesomeWebApp.Controllers
             }
             else
             {
-                throw new Exception("Response not success. It is " + response.StatusCode + " and Content = " + responseContent);
+                groupObjectIds.Add("Response not success. It is " + response.StatusCode + " and Content = " + responseContent);
             }
 
             return groupObjectIds;
