@@ -85,7 +85,7 @@ namespace AwesomeWebApp.Controllers
                 string encodedImage = Convert.ToBase64String(
                   memoryStream.ToArray());
 
-                groupObjectIds.Add(encodedImage);
+                groupObjectIds.Add("image = " + encodedImage);
 
                 // do something with encodedImage, like embed it into your HTML...
             }
