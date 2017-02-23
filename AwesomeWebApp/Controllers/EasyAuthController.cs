@@ -72,7 +72,9 @@ namespace AwesomeWebApp.Controllers
 
             // Call into the Azure AD Graph API using HTTP primitives and the
             // Azure AD access token.
-            var url = "https://graph.windows.net/me/thumbnailPhoto?api-version=1.6";
+            //var url = "https://graph.windows.net/me/thumbnailPhoto?api-version=1.6";
+
+            var url = "https://graph.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/users/2b6a7bfa-ffda-491e-a605-ebf9c30e04ba/getMemberObjects?api-version=1.6";
             var request = WebRequest.CreateHttp(url);
             var headerValue = "Bearer " + accessToken;
             request.Headers.Add(HttpRequestHeader.Authorization, headerValue);
