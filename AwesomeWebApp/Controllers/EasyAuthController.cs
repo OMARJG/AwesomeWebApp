@@ -50,11 +50,12 @@ namespace AwesomeWebApp.Controllers
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             request.Content = content;
             HttpResponseMessage response = await client.SendAsync(request);
+            string responseContent = await response.Content.ReadAsStringAsync();
+
 
             // Endpoint returns JSON with an array of Group ObjectIDs
             if (response.IsSuccessStatusCode)
             {
-                string responseContent = await response.Content.ReadAsStringAsync();
                 var groupsResult = (System.Web.Helpers.Json.Decode(responseContent)).value;
 
                 foreach (string groupObjectID in groupsResult)
@@ -62,7 +63,7 @@ namespace AwesomeWebApp.Controllers
             }
             else
             {
-                throw new Exception("Response not success. It is " + response.StatusCode + " and Content = " + response.Content.ToString());
+                throw new Exception("Response not success. It is " + response.StatusCode + " and Content = " + responseContent);
             }
 
             return groupObjectIds;
