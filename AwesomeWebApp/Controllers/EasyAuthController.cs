@@ -39,58 +39,60 @@ namespace AwesomeWebApp.Controllers
             List<string> groupObjectIds = new List<string>();
 
 
-            //string groupsClaimSourceIndex = (System.Web.Helpers.Json.Decode(claimsIdentity.FindFirst("_claim_names").Value)).groups;
-            //var groupClaimsSource = (System.Web.Helpers.Json.Decode(claimsIdentity.FindFirst("_claim_sources").Value))[groupsClaimSourceIndex];
-            //string requestUrl = groupClaimsSource.endpoint + "?api-version=1.6";
+            string groupsClaimSourceIndex = (System.Web.Helpers.Json.Decode(claimsIdentity.FindFirst("_claim_names").Value)).groups;
+            var groupClaimsSource = (System.Web.Helpers.Json.Decode(claimsIdentity.FindFirst("_claim_sources").Value))[groupsClaimSourceIndex];
+            string requestUrl = groupClaimsSource.endpoint + "?api-version=1.6";
 
-            //string accesstoken = Request.Headers["X-MS-TOKEN-AAD-ACCESS-TOKEN"].ToString();
-            //// Prepare and Make the POST request
-            //HttpClient client = new HttpClient();
-            //HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUrl);
-            //request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accesstoken);
-            //StringContent content = new StringContent("{\"securityEnabledOnly\": \"false\"}");
-            //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            //request.Content = content;
-            //HttpResponseMessage response = await client.SendAsync(request);
-            //string responseContent = await response.Content.ReadAsStringAsync();
-
-
-            //// Endpoint returns JSON with an array of Group ObjectIDs
-            //if (response.IsSuccessStatusCode)
-            //{
-            //    var groupsResult = (System.Web.Helpers.Json.Decode(responseContent)).value;
-
-            //    foreach (string groupObjectID in groupsResult)
-            //        groupObjectIds.Add(groupObjectID);
-            //}
-            //else
-            //{
-            //    groupObjectIds.Add("Response not success. It is " + response.StatusCode + " and Content = " + responseContent);
-            //}
-
-            string accessToken = this.Request.Headers["X-MS-TOKEN-AAD-ACCESS-TOKEN"];
-
-            // Call into the Azure AD Graph API using HTTP primitives and the
-            // Azure AD access token.
-            //var url = "https://graph.windows.net/me/thumbnailPhoto?api-version=1.6";
-
+            string accesstoken = Request.Headers["X-MS-TOKEN-AAD-ACCESS-TOKEN"].ToString();
+            // Prepare and Make the POST request
+            HttpClient client = new HttpClient();
             var url = "https://graph.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/users/2b6a7bfa-ffda-491e-a605-ebf9c30e04ba/getMemberObjects?api-version=1.6";
-            var request = WebRequest.CreateHttp(url);
-            var headerValue = "Bearer " + accessToken;
-            request.Headers.Add(HttpRequestHeader.Authorization, headerValue);
 
-            using (var response = await request.GetResponseAsync())
-            using (var responseStream = response.GetResponseStream())
-            using (var memoryStream = new MemoryStream())
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accesstoken);
+            StringContent content = new StringContent("{\"securityEnabledOnly\": \"false\"}");
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            request.Content = content;
+            HttpResponseMessage response = await client.SendAsync(request);
+            string responseContent = await response.Content.ReadAsStringAsync();
+
+
+            // Endpoint returns JSON with an array of Group ObjectIDs
+            if (response.IsSuccessStatusCode)
             {
-                responseStream.CopyTo(memoryStream);
-                string encodedImage = Convert.ToBase64String(
-                  memoryStream.ToArray());
+                var groupsResult = (System.Web.Helpers.Json.Decode(responseContent)).value;
 
-                groupObjectIds.Add("image = " + encodedImage);
-
-                // do something with encodedImage, like embed it into your HTML...
+                foreach (string groupObjectID in groupsResult)
+                    groupObjectIds.Add(groupObjectID);
             }
+            else
+            {
+                groupObjectIds.Add("Response not success. It is " + response.StatusCode + " and Content = " + responseContent);
+            }
+
+            //string accessToken = this.Request.Headers["X-MS-TOKEN-AAD-ACCESS-TOKEN"];
+
+            //// Call into the Azure AD Graph API using HTTP primitives and the
+            //// Azure AD access token.
+            ////var url = "https://graph.windows.net/me/thumbnailPhoto?api-version=1.6";
+
+            //var url = "https://graph.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/users/2b6a7bfa-ffda-491e-a605-ebf9c30e04ba/getMemberObjects?api-version=1.6";
+            //var request = WebRequest.CreateHttp(url);
+            //var headerValue = "Bearer " + accessToken;
+            //request.Headers.Add(HttpRequestHeader.Authorization, headerValue);
+
+            //using (var response = await request.GetResponseAsync())
+            //using (var responseStream = response.GetResponseStream())
+            //using (var memoryStream = new MemoryStream())
+            //{
+            //    responseStream.CopyTo(memoryStream);
+            //    string encodedImage = Convert.ToBase64String(
+            //      memoryStream.ToArray());
+
+            //    groupObjectIds.Add("image = " + encodedImage);
+
+            //    // do something with encodedImage, like embed it into your HTML...
+            //}
 
             return groupObjectIds;
         }
