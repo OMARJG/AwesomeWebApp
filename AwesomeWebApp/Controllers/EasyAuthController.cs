@@ -41,7 +41,7 @@ namespace AwesomeWebApp.Controllers
             var groupClaimsSource = (System.Web.Helpers.Json.Decode(claimsIdentity.FindFirst("_claim_sources").Value))[groupsClaimSourceIndex];
             string requestUrl = groupClaimsSource.endpoint + "?api-version=1.6";
 
-            string accesstoken = Request.Headers["X-MS-TOKEN-AAD-ID-TOKEN"].ToString();
+            string accesstoken = Request.Headers["X-MS-TOKEN-AAD-ACCESS-TOKEN"].ToString();
             // Prepare and Make the POST request
             HttpClient client = new HttpClient();
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUrl);
