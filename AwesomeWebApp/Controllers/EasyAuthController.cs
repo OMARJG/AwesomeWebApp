@@ -17,12 +17,12 @@ namespace AwesomeWebApp.Controllers
     public class EasyAuthController : Controller
     {
         // GET: EasyAuth
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
            
 
             List<string> objectIdsToCompare = new List<string>();
-            objectIdsToCompare = GetMemberGroups(ClaimsPrincipal.Current.Identity as ClaimsIdentity).Result;
+            objectIdsToCompare = await GetMemberGroups(ClaimsPrincipal.Current.Identity as ClaimsIdentity);
 
 
             Group g = new Group();
@@ -39,7 +39,7 @@ namespace AwesomeWebApp.Controllers
 
             string groupsClaimSourceIndex = (System.Web.Helpers.Json.Decode(claimsIdentity.FindFirst("_claim_names").Value)).groups;
             var groupClaimsSource = (System.Web.Helpers.Json.Decode(claimsIdentity.FindFirst("_claim_sources").Value))[groupsClaimSourceIndex];
-            string requestUrl = groupClaimsSource.endpoint + "?api-version=" + ConfigurationManager.AppSettings["ida:GraphAPIVersion"];
+            string requestUrl = groupClaimsSource.endpoint + "?api-version=1.6";
 
             string accesstoken = Request.Headers["X-MS-TOKEN-AAD-ID-TOKEN"].ToString();
             // Prepare and Make the POST request
